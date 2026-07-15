@@ -1,0 +1,31 @@
+# 1. Navigate to project
+cd ~/Documents/final_v5
+
+# 2. Stop and remove everything
+docker rm -f target_server governance_ai attacker_node \
+  user_alice user_bob user_carol user_dave \
+  user_eve user_frank user_grace user_heidi 2>/dev/null || true
+
+# 3. Clean up networks and volumes
+docker network prune -f
+docker volume prune -f
+
+# 4. Remove old images
+docker rmi final_v5-governance final_v5-target final_v5-attacker final_v5-normal_users \
+  final_v5-user_alice final_v5-user_bob final_v5-user_carol final_v5-user_dave \
+  final_v5-user_eve final_v5-user_frank final_v5-user_grace final_v5-user_heidi 2>/dev/null || true
+
+  # 5. Build all images fresh
+docker compose build --no-cache
+
+# 6. Start everything — core + normal users + attacker
+docker compose --profile with-attacker up -d
+
+# 7. Verify all containers are running
+docker compose ps
+
+# 8. Watch AI detections live
+sleep 15 && docker compose logs -f governance | grep -E "AUTO-BLOCK|BLOCK|HIGH|CRITICAL|fused"
+
+# 9. Verify blocked iptables
+docker compose exec governance iptables -L INPUT -n --line-number

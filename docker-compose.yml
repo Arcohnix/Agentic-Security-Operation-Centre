@@ -1,0 +1,214 @@
+networks:
+  attack_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+volumes:
+  pcap_data:
+  logs_data:
+
+services:
+
+  target:
+    platform: linux/amd64
+    build:
+      context: ./target
+      dockerfile: Dockerfile
+    container_name: target_server
+    networks:
+      attack_net:
+        ipv4_address: 172.20.0.10
+    ports:
+      - "8888:80"
+      - "2222:22"
+    volumes:
+      - logs_data:/var/log/nginx
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+
+  governance:
+    platform: linux/amd64
+    build:
+      context: ./governance
+      dockerfile: Dockerfile
+    container_name: governance_ai
+    depends_on:
+      - target
+    networks:
+      attack_net:
+        ipv4_address: 172.20.0.20
+    ports:
+      - "8080:8080"
+    volumes:
+      - pcap_data:/pcap
+      - logs_data:/target_logs:ro
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - TARGET_IP=172.20.0.10
+      - NETWORK_INTERFACE=eth0
+      - PCAP_DIR=/pcap
+      - TARGET_LOG_DIR=/target_logs
+      - DASHBOARD_PORT=8080
+    restart: unless-stopped
+
+  attacker:
+    platform: linux/amd64
+    build:
+      context: ./attacker
+      dockerfile: Dockerfile
+    container_name: attacker_node
+    depends_on:
+      - target
+    networks:
+      attack_net:
+        ipv4_address: 172.20.0.30
+    environment:
+      - TARGET_IP=172.20.0.10
+      - ATTACK_MODE=mixed
+      - INTENSITY=high
+    restart: unless-stopped
+    profiles:
+      - with-attacker
+
+  # ── 4. NORMAL USERS — 8 peaceful browsers, each with own IP ──
+
+  user_alice:
+    platform: linux/amd64
+    build:
+      context: ./normal_users
+      dockerfile: Dockerfile
+    container_name: user_alice
+    depends_on:
+      - target
+    networks:
+      attack_net:
+        ipv4_address: 172.20.0.40
+    environment:
+      - TARGET_IP=172.20.0.10
+      - USER_NAME=alice
+      - USER_SPEED=medium
+    restart: unless-stopped
+
+  user_bob:
+    platform: linux/amd64
+    build:
+      context: ./normal_users
+      dockerfile: Dockerfile
+    container_name: user_bob
+    depends_on:
+      - target
+    networks:
+      attack_net:
+        ipv4_address: 172.20.0.41
+    environment:
+      - TARGET_IP=172.20.0.10
+      - USER_NAME=bob
+      - USER_SPEED=slow
+    restart: unless-stopped
+
+  user_carol:
+    platform: linux/amd64
+    build:
+      context: ./normal_users
+      dockerfile: Dockerfile
+    container_name: user_carol
+    depends_on:
+      - target
+    networks:
+      attack_net:
+        ipv4_address: 172.20.0.42
+    environment:
+      - TARGET_IP=172.20.0.10
+      - USER_NAME=carol
+      - USER_SPEED=fast
+    restart: unless-stopped
+
+  user_dave:
+    platform: linux/amd64
+    build:
+      context: ./normal_users
+      dockerfile: Dockerfile
+    container_name: user_dave
+    depends_on:
+      - target
+    networks:
+      attack_net:
+        ipv4_address: 172.20.0.43
+    environment:
+      - TARGET_IP=172.20.0.10
+      - USER_NAME=dave
+      - USER_SPEED=slow
+    restart: unless-stopped
+
+  user_eve:
+    platform: linux/amd64
+    build:
+      context: ./normal_users
+      dockerfile: Dockerfile
+    container_name: user_eve
+    depends_on:
+      - target
+    networks:
+      attack_net:
+        ipv4_address: 172.20.0.44
+    environment:
+      - TARGET_IP=172.20.0.10
+      - USER_NAME=eve
+      - USER_SPEED=medium
+    restart: unless-stopped
+
+  user_frank:
+    platform: linux/amd64
+    build:
+      context: ./normal_users
+      dockerfile: Dockerfile
+    container_name: user_frank
+    depends_on:
+      - target
+    networks:
+      attack_net:
+        ipv4_address: 172.20.0.45
+    environment:
+      - TARGET_IP=172.20.0.10
+      - USER_NAME=frank
+      - USER_SPEED=fast
+    restart: unless-stopped
+
+  user_grace:
+    platform: linux/amd64
+    build:
+      context: ./normal_users
+      dockerfile: Dockerfile
+    container_name: user_grace
+    depends_on:
+      - target
+    networks:
+      attack_net:
+        ipv4_address: 172.20.0.46
+    environment:
+      - TARGET_IP=172.20.0.10
+      - USER_NAME=grace
+      - USER_SPEED=medium
+    restart: unless-stopped
+
+  user_heidi:
+    platform: linux/amd64
+    build:
+      context: ./normal_users
+      dockerfile: Dockerfile
+    container_name: user_heidi
+    depends_on:
+      - target
+    networks:
+      attack_net:
+        ipv4_address: 172.20.0.47
+    environment:
+      - TARGET_IP=172.20.0.10
+      - USER_NAME=heidi
+      - USER_SPEED=slow
+    restart: unless-stopped
