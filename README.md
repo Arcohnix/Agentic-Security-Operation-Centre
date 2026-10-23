@@ -9,7 +9,7 @@ An autonomous, closed-loop cyber defense platform for **Zero-Day and DDoS attack
 
 ---
 
-## ⚡ Architecture
+## Architecture
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -50,7 +50,7 @@ An autonomous, closed-loop cyber defense platform for **Zero-Day and DDoS attack
 
 ---
 
-## 🚀 Quick Start (Docker)
+## Quick Start (Docker)
 
 ### 1. Prerequisites
 - [Docker Engine 24+](https://docs.docker.com/engine/install/) & Docker Compose v2.20+
@@ -86,7 +86,7 @@ docker compose exec governance iptables -L INPUT -n --line-numbers
 
 ---
 
-## 🧪 Standalone Simulation Mode (No Docker)
+## Standalone Simulation Mode (No Docker)
 
 You can also run the evaluation and attack simulations directly with Python:
 
@@ -105,7 +105,7 @@ python agentic_governance/main.py eval
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 ├── attacker/               # High-intensity attack generator (DDoS, scans, brute-force, SQLi/XSS)
@@ -124,18 +124,9 @@ python agentic_governance/main.py eval
 
 ---
 
-## 🛡️ Teardown
+## Teardown
 
 ```bash
 # Stop and remove all containers, networks, and volumes
 docker compose down -v
 ```
-
----
-
-## 👥 Authors
-Developed at **DES Pune University**:
-- Lalit Kulkarni
-- Pranjal S Nalawade
-- Afra Inamdar
-- Sanket S Desai
